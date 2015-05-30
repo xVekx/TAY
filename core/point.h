@@ -11,12 +11,12 @@ public:
 	enum TypeEnum	//Тип точки
 	{
 		PointNULL	= 0,	//Неопределенно
-		PointIN,	//Точка является входом
-		PointOUT	//Точка является выходом
+		PointAll,			//Все точки
+		PointIN,			//Точка является входом
+		PointOUT			//Точка является выходом
 	};
 
-	Point();
-	Point(TypeEnum t, QString n);
+	Point(TypeEnum t = PointNULL, QString n = "PointNULL");
 	QString GetName();
 	void SetName(QString n);
 	void SetType(TypeEnum t);

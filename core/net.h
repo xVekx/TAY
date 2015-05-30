@@ -14,7 +14,7 @@ public:
 	QList<Point *> GetPointBoxOut();
 	bool GetReady();
 	void Clean();
-	void Step();
+	bool Step();
 private:
 	Point* pin;
 	QList<Point*> pout;

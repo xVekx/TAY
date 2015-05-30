@@ -43,7 +43,7 @@ void Net::Clean()
 	ocdetect = false;
 }
 
-void Net::Step()
+bool Net::Step()
 {
 	if(!ready && pin->GetReady())
 	{
@@ -51,5 +51,7 @@ void Net::Step()
 		{
 			pout[i]->SetValue(pin->GetValue());
 		}
+		ready = true;
 	}
+	return ready;
 }

@@ -15,7 +15,7 @@ class MW : public QMainWindow
 public:
 	explicit MW(QWidget *parent = 0);
 	~MW();
-	Sheme *s;
+	Sheme *sheme;
 
 private:
 	Ui::MW *ui;

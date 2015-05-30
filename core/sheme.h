@@ -2,32 +2,14 @@
 #define SHEME_H
 
 #include "box.h"
-#include "net.h"
 
-class Sheme
+class Sheme : public Box
 {
 public:
 	Sheme();
 
-
-
-	void Step();
-
-	void AddBox(Box *addbox)
-	{
-		box.append(addbox);
-	}
-
-	void AddNet(Net *addnet)
-	{
-		net.append(addnet);
-	}
-
-	void SetTest001();
-
-private:
-	QList<Box*> box;
-	QList<Net*> net;
+	bool Step();
+	void TestSheme001();
 };
 
 #endif // SHEME_H

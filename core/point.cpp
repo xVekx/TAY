@@ -3,22 +3,15 @@
 static QString pointtypename[] =
 {
 	"PointNULL",
+	"PointALL",
 	"PointIN",
 	"PointOUT"
 };
 //---------------------------------------------------------------------------------------------------
-Point::Point()
-{
-	ready = false,
-			value = 0.0;
-	type = PointNULL;
-	name = "PointNULL";
-}
-//---------------------------------------------------------------------------------------------------
 Point::Point(Point::TypeEnum t, QString n)
 {
 	ready = false,
-			value = 0.0;
+	value = 0.0;
 	type = t;
 	name = n;
 }
