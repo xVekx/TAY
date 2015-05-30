@@ -13,7 +13,7 @@ public:
 		BoxAll,			//Все блоки
 		BoxSource,		//Блок источника сигнала, имеет только выходы
 		BoxDrain,		//Блок приёмника готового сигнала, толко входы
-		BoxFUN,			//Блок Вычисления
+		BoxFUN,			//Блок Вычисления функции
 		BoxSumm,		//Функция суммирования
 		BoxTestFun		//Функция тестирования
 	};
@@ -21,39 +21,25 @@ public:
 	Box(TypeEnum t = BoxNULL,QString nm = "NULL");
 
 	void AddPoint(Point* addpoint);
-
 	void AddBox(Box *addbox);
-
 	void AddNet(Net *addnet);
 
 	QString GetName() const;
-
 	TypeEnum GetType() const;
 
-	bool GetReady() const;
+	void SetReady(bool r = true);
+	bool GetReady();
 
 	bool GetReadyBoxListPoint(QList<Point*> lp);
 
 	Box *GetBox(QString nb);
-
 	Point *GetPoint(QString np);
 
 	QList<Box*> GetListBox(TypeEnum t);
-
 	QList<Point*> GetListPoint(Point::TypeEnum t);
 
 	void PrintListPoint(const QList<Point*> lp);
-
-	void PrintListBox(QList<Box*> lb)
-	{
-		foreach (Box *b, lb) {
-			qDebug()<<b->GetName();
-			QList<Point*> lp = b->GetListPoint(Point::PointAll);
-			PrintListPoint(b->GetListPoint(Point::PointAll));
-		}
-	}
-
-
+	void PrintListBox(QList<Box*> lb);
 
 	bool StepNet()
 	{
@@ -63,18 +49,36 @@ public:
 		return false;
 	}
 
+	bool ReadyBox(TypeEnum t)
+	{
+		QList<Box*> lb = GetListBox(t);
+		foreach (Box* b, lb)
+		{
+			if(!b->GetReady())
+				return false;
+		}
+		return true;
+	}
+
 	bool StepBox(TypeEnum t)
 	{
 		QList<Box*>	lb = GetListBox(t);
 		foreach (Box *b, lb) {
 			if(!b->GetReady())
 			{
-				switch (t) {
+				qDebug()<<"Box"<<b->GetName();
+				QList<Point*> lpin = b->GetListPoint(Point::PointIN);
+				if(!GetReadyBoxListPoint(lpin))
+				{
+					qDebug()<<"continue";
+					continue;
+				}
+
+				TypeEnum bt = b->GetType();
+
+				switch (bt) {
+
 					case BoxSumm: {
-						qDebug()<<"BoxSumm"<<b->GetName();
-						QList<Point*> lpin = b->GetListPoint(Point::PointIN);
-						if(!GetReadyBoxListPoint(lpin))
-							continue;
 						QList<Point*> lpout = b->GetListPoint(Point::PointOUT);
 
 						double summ = 0;
@@ -89,13 +93,12 @@ public:
 						PrintListPoint(lpin);
 						PrintListPoint(lpout);
 
+						b->SetReady();
 						break;
 					}
+
 					case BoxTestFun: {
-						qDebug()<<"BoxTestFun"<<b->GetName();
-						QList<Point*> lpin = b->GetListPoint(Point::PointIN);
-						if(!GetReadyBoxListPoint(lpin))
-							continue;
+
 						QList<Point*> lpout = b->GetListPoint(Point::PointOUT);
 
 						double summ = 0;
@@ -112,15 +115,21 @@ public:
 						PrintListPoint(lpin);
 						PrintListPoint(lpout);
 
+						b->SetReady();
 						break;
 					}
+
+					case BoxDrain: {
+						b->SetReady();
+						break;
+					}
+
 					default:
 						break;
 				}
 			}
-
 		}
-		return false;
+		return ReadyBox(t);
 	}
 
 private:

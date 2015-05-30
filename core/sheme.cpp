@@ -92,24 +92,23 @@ void Sheme::TestSheme001()
 
 	GetBox("S1")->GetPoint("S1Out1")->SetValue(1.1);
 	GetBox("S2")->GetPoint("S2Out1")->SetValue(2.2);
-	//GetBox("S3")->GetPoint("S3Out1")->SetValue(3.3);
+	GetBox("S3")->GetPoint("S3Out1")->SetValue(3.3);
 
 }
 
 bool Sheme::Step()
 {
 	qDebug()<<"Step";
+	//PrintListBox(GetListBox(Box::BoxSource));
+	//PrintListBox(GetListBox(Box::BoxDrain));
+
+	for(int z=0;z<10;z++)
+	{
+		StepNet();
+		if(StepBox(Box::BoxAll))
+			break;
+	}
 	PrintListBox(GetListBox(Box::BoxSource));
 	PrintListBox(GetListBox(Box::BoxDrain));
-
-	StepNet();
-	StepBox(Box::BoxTestFun);
-	StepNet();
-
-	PrintListBox(GetListBox(Box::BoxSource));
-	PrintListBox(GetListBox(Box::BoxDrain));
-
-
-
 	return false;
 }

@@ -4,7 +4,14 @@ Box::Box(Box::TypeEnum t, QString nm)
 {
 	type = t;
 	namebox = nm;
-	ready = false;
+	if(t != Box::BoxSource)
+	{
+		ready = false;
+	}
+	else
+	{
+		ready = true;
+	}
 }
 
 void Box::AddPoint(Point *addpoint)
@@ -32,7 +39,12 @@ Box::TypeEnum Box::GetType() const
 	return type;
 }
 
-bool Box::GetReady() const
+void Box::SetReady(bool r)
+{
+	ready = r;
+}
+
+bool Box::GetReady()
 {
 	return ready;
 }
@@ -99,5 +111,14 @@ void Box::PrintListPoint(const QList<Point *> lp)
 	qDebug()<<"List point size ="<<lp.size();
 	foreach (Point *p, lp) {
 		qDebug()<<p->PointInfo();
+	}
+}
+
+void Box::PrintListBox(QList<Box *> lb)
+{
+	foreach (Box *b, lb) {
+		qDebug()<<b->GetName();
+		QList<Point*> lp = b->GetListPoint(Point::PointAll);
+		PrintListPoint(b->GetListPoint(Point::PointAll));
 	}
 }
