@@ -8,7 +8,7 @@ MW::MW(QWidget *parent) :
 	ui->setupUi(this);
 
 	sheme = new Sheme();
-	sheme->TestSheme001();
+	sheme->TestSheme002();
 	sheme->Step();
 }
 

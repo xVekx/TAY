@@ -10,6 +10,7 @@ public:
 
 	bool Step();
 	void TestSheme001();
+	void TestSheme002();
 };
 
 #endif // SHEME_H
