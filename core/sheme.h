@@ -3,6 +3,8 @@
 
 #include "box.h"
 
+#include <QStack>
+
 class Sheme : public Box
 {
 public:
@@ -11,6 +13,7 @@ public:
 	bool Step();
 	void TestSheme001();
 	void TestSheme002();
+	void TestSheme003();
 };
 
 #endif // SHEME_H

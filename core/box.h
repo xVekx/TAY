@@ -11,6 +11,7 @@ public:
 	{
 		BoxNULL = 0,	//Блок не определён
 		BoxAll,			//Все блоки
+		BoxSheme,
 		BoxSource,		//Блок источника сигнала, имеет только выходы
 		BoxDrain,		//Блок приёмника готового сигнала, толко входы
 		BoxFUN,			//Блок Вычисления функции
@@ -43,10 +44,13 @@ public:
 
 	bool StepNet()
 	{
+		int count = 0;
 		foreach (Net* n, net) {
-			qDebug()<<n->Step();
+			if(n->Step())
+				count++;
 		}
-		return false;
+		qDebug()<<"StepNet"<<net.size()<<count<<(net.size() == count);
+		return net.size() == count;
 	}
 
 	bool ReadyBox(TypeEnum t)
@@ -124,12 +128,28 @@ public:
 						break;
 					}
 
+					case BoxSheme:
+					{
+						boxtree = b;
+						break;
+					}
+
 					default:
 						break;
 				}
 			}
 		}
-		return ReadyBox(t);
+		return true;
+	}
+
+	void SetBoxTreeThis()
+	{
+		boxtree = this;
+	}
+
+	Box* CurrentBoxTree()
+	{
+		return boxtree;
 	}
 
 private:
@@ -140,6 +160,7 @@ private:
 	TypeEnum		type;
 	QString			namebox;
 	bool			ready;
+	Box*			boxtree;
 
 };
 
