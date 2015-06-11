@@ -410,17 +410,18 @@ bool Sheme::Step()
 
 	for(int z=0;z<10;z++)
 	{
+		qDebug()<<"-----------";
 		qDebug()<<z<<" Name BOX"<<stktree.top()->GetName()<<"Size"<<stktree.size();
 
-		stktree.top()->StepNet();
+		bool net=stktree.top()->StepNet();
 		stktree.top()->StepBox(Box::BoxAll);
 
-		if(stktree.top()->ReadyBox(Box::BoxDrain) && stktree.top() == this)
+		if(net && stktree.top() == this)
 		{
 			break;
 		}
 
-		if(stktree.top()->ReadyBox(Box::BoxAll) && stktree.top() != this)
+		if(net && stktree.top() != this)
 		{
 			qDebug()<<"POP";
 			stktree.top()->SetBoxTreeThis();

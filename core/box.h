@@ -42,16 +42,7 @@ public:
 	void PrintListPoint(const QList<Point*> lp);
 	void PrintListBox(QList<Box*> lb);
 
-	bool StepNet()
-	{
-		int count = 0;
-		foreach (Net* n, net) {
-			if(n->Step())
-				count++;
-		}
-		qDebug()<<"StepNet"<<net.size()<<count<<(net.size() == count);
-		return net.size() == count;
-	}
+	bool StepNet();
 
 	bool ReadyBox(TypeEnum t)
 	{
