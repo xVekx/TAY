@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "core/sheme.h"
+#include <QtXml>
 
 namespace Ui {
 class MW;

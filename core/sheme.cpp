@@ -1,8 +1,8 @@
 #include "sheme.h"
 
-Sheme::Sheme()
+Sheme::Sheme() : Box(BoxSheme)
 {
-
+	//type = BoxSheme;
 }
 
 void Sheme::TestSheme001()
@@ -270,8 +270,17 @@ void Sheme::TestSheme003()
 		{
 			b21->AddPoint(new Point(Point::PointIN,"B21In1"));
 			b21->AddPoint(new Point(Point::PointOUT,"B21Out1"));
+
+
+			Box *b211 = new Box(Box::BoxTestFun, "B211");
+			{
+				b21->AddBox(b211);
+			}
+
+			b2->AddBox(b21);
+
 		}
-		b2->AddBox(b21);
+
 
 		Box *b22 = new Box(Box::BoxTestFun, "B22");
 
@@ -279,14 +288,15 @@ void Sheme::TestSheme003()
 			b22->AddPoint(new Point(Point::PointIN,"B22In1"));
 			b22->AddPoint(new Point(Point::PointIN,"B22In2"));
 			b22->AddPoint(new Point(Point::PointOUT,"B22Out1"));
+			b2->AddBox(b22);
 		}
-		b2->AddBox(b22);
+
 		AddBox(b2);
 
 		Net *ns21 = new Net();
 		{
-			ns21->AddPointIn(GetBox("B2")->GetPoint("B2In1"));
-			ns21->AddPointOut(GetBox("B2")->GetBox("B21")->GetPoint("B21In1"));
+			ns21->AddPointIn(GetBox("B2")->GetPoint("B2In1"),b2);
+			ns21->AddPointOut(GetBox("B2")->GetBox("B21")->GetPoint("B21In1"),b21);
 		}
 		b2->AddNet(ns21);
 
@@ -299,8 +309,8 @@ void Sheme::TestSheme003()
 
 		Net *nb21 = new Net();
 		{
-			nb21->AddPointIn(GetBox("B2")->GetBox("B21")->GetPoint("B21Out1"));
-			nb21->AddPointOut(GetBox("B2")->GetBox("B22")->GetPoint("B22In1"));
+			nb21->AddPointIn(GetBox("B2")->GetBox("B21")->GetPoint("B21Out1"),b21);
+			nb21->AddPointOut(GetBox("B2")->GetBox("B22")->GetPoint("B22In1"),b22);
 		}
 		b2->AddNet(nb21);
 
@@ -397,6 +407,188 @@ void Sheme::TestSheme003()
 	GetBox("S1")->GetPoint("S1Out1")->SetValue(1.1);
 	GetBox("S2")->GetPoint("S2Out1")->SetValue(2.2);
 	GetBox("S3")->GetPoint("S3Out1")->SetValue(3.3);
+}
+
+void Sheme::SetAttrDomElement(QDomDocument &dd, QDomElement &de, QString attr, QString str)
+{
+	if(!str.isEmpty())
+	{
+		QDomAttr domAttr = dd.createAttribute(attr);
+		domAttr.setValue(str);
+		de.setAttributeNode(domAttr);
+	}
+}
+
+QString Sheme::GetNameBox(Box *box, NetPointBox npb)
+{
+	if(npb.GetBox() != NULL) {
+		if(npb.GetBox() == box) {
+			return box->GetName();
+		}
+		else {
+			Box *s = (Box*)npb.GetBox();
+			int i = box->GetListBox().indexOf(s);
+			if(i != -1) {
+				return box->GetListBox().at(i)->GetName();
+			}
+		}
+	}
+	else {
+		int i = box->GetListPoint().indexOf(npb.GetPoint());
+		if(i != -1) {
+			return box->GetName();
+		}
+		else {
+			foreach (Box *b, box->GetListBox()) {
+				int i = b->GetListPoint().indexOf(npb.GetPoint());
+				if(i != -1) {
+					return b->GetName();
+				}
+			}
+		}
+	}
+	return QString();
+}
+
+QDomElement Sheme::BoxDomElement(QDomDocument &domdoc, Box *box)
+{
+	QDomElement bde = domdoc.createElement("box");
+	SetAttrDomElement(domdoc,bde,"name",box->GetName());
+	SetAttrDomElement(domdoc,bde,"id",QString("%1").arg(box->GetIdBox()));
+	SetAttrDomElement(domdoc,bde,"type",QString("%1").arg(box->GetType()));
+
+	foreach (Point *p, box->GetListPoint()) {
+		QDomElement de = domdoc.createElement("point");
+		SetAttrDomElement(domdoc,de,"name",p->GetName());
+		SetAttrDomElement(domdoc,de,"type",QString("%1").arg(p->GetType()));
+		bde.appendChild(de);
+	}
+
+	foreach (Box *b, box->GetListBox()) {
+		QDomElement de = domdoc.createElement("box");
+		SetAttrDomElement(domdoc,de,"id",QString("%1").arg(b->GetIdBox()));
+		bde.appendChild(de);
+	}
+
+	foreach (Net *n, box->GetListNet())
+	{
+		QDomElement de = domdoc.createElement("net");
+
+		QDomElement dein = domdoc.createElement("in");
+		SetAttrDomElement(domdoc,dein,"box",GetNameBox(box,n->GetNetBoxPointIn()));
+		SetAttrDomElement(domdoc,dein,"point",n->GetPointBoxIn()->GetName());
+		de.appendChild(dein);
+
+		foreach (NetPointBox npbout, n->GetNetBoxPointOut()) {
+			QDomElement deout = domdoc.createElement("out");
+			SetAttrDomElement(domdoc,deout,"box",GetNameBox(box,npbout));
+			SetAttrDomElement(domdoc,deout,"point",npbout.GetPoint()->GetName());
+			de.appendChild(deout);
+		}
+
+
+		bde.appendChild(de);
+	}
+
+	return bde;
+}
+
+void BoxInfo(Box* b)
+{
+	qDebug()<<"Box"<<b->GetName()<<b->GetReadyTree();
+}
+
+
+void Sheme::AllListBox(QList<Box*> &lb)
+{
+	lb.clear();
+	QStack<Box*> stktree;
+	stktree.push(this);
+	bool loop = true;
+
+	while(loop) {
+		//qDebug()<<"-------->"<<"Step";
+		//BoxInfo(stktree.top());
+
+		if(stktree.top()->GetListBoxSize() == 0) {
+			//qDebug()<<"stktree.top()->GetListBoxSize() == 0";
+			stktree.top()->SetReadyTree(true);
+			lb.append(stktree.top());
+			if(stktree.top() != this) {
+				stktree.pop();
+				continue;
+			}
+			else
+				loop = false;
+		}
+
+		//qDebug()<<"List";
+		QList<Box*> stklb = stktree.top()->GetListBox();
+
+		bool statpush = false;
+		foreach (Box* b, stklb) {
+			//BoxInfo(b);
+			if(!b->GetReadyTree()) {
+				//qDebug()<<"PUSH";
+				stktree.push(b);
+				statpush = true;
+				break;
+			}
+		}
+
+		if(statpush)
+			continue;
+
+		stktree.top()->SetReadyTree(true);
+		lb.append(stktree.top());
+		if(stktree.top() != this)
+			stktree.pop();
+		else
+			loop = false;
+	}
+
+	foreach (Box* b, lb) {
+		b->SetReadyTree(false);
+	}
+}
+
+
+void Sheme::SetIdAllSheme()
+{
+	QList<Box*> lb;
+	AllListBox(lb);
+	int n = 0;
+	foreach (Box* b, lb) {
+		b->SetIdBox(n);
+		n++;
+	}
+}
+
+bool Sheme::Save(QString FileName)
+{
+	SetIdAllSheme();
+	QDomDocument sd("Sheme 0.0.0");
+	QDomElement  de = sd.createElement("elements");
+	sd.appendChild(de);
+
+	QList<Box*> lb;
+	AllListBox(lb);
+	foreach (Box* b, lb)
+	{
+		QDomElement bde = BoxDomElement(sd,b);
+		de.appendChild(bde);
+	}
+
+	QFile file(FileName);
+	if(!file.open(QIODevice::WriteOnly))
+	{
+		qDebug()<<"Not open save file:"<<FileName;
+		return false;
+	}
+	QTextStream(&file) << sd.toString();
+	qDebug()<<sd.toString();
+	file.close();
+	return true;
 }
 
 bool Sheme::Step()

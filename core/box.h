@@ -36,8 +36,14 @@ public:
 	Box *GetBox(QString nb);
 	Point *GetPoint(QString np);
 
-	QList<Box*> GetListBox(TypeEnum t);
-	QList<Point*> GetListPoint(Point::TypeEnum t);
+	QList<Box*> GetListBox(TypeEnum t = BoxAll);
+
+	QList<Point*> GetListPoint(Point::TypeEnum t = Point::PointAll);
+
+	QList<Net*> GetListNet()
+	{
+		return net;
+	}
 
 	void PrintListPoint(const QList<Point*> lp);
 	void PrintListBox(QList<Box*> lb);
@@ -143,6 +149,41 @@ public:
 		return boxtree;
 	}
 
+	void SetIdBox(int id)
+	{
+		idbox = id;
+	}
+
+	int GetIdBox()
+	{
+		return idbox;
+	}
+
+	int GetListBoxSize()
+	{
+		return box.size();
+	}
+
+	bool StatusListBoxId()
+	{
+		foreach (Box *b, box)
+		{
+			if(b->GetIdBox() == -1)
+				return false;
+		}
+		return true;
+	}
+
+	void SetReadyTree(bool r)
+	{
+		readytree = r;
+	}
+
+	bool GetReadyTree()
+	{
+		return readytree;
+	}
+
 private:
 
 	QList<Point*>	point;
@@ -152,6 +193,8 @@ private:
 	QString			namebox;
 	bool			ready;
 	Box*			boxtree;
+	int				idbox;
+	bool			readytree;
 
 };
 

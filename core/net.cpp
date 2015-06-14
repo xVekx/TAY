@@ -6,14 +6,22 @@ Net::Net()
 	ocdetect = false;
 }
 
-void Net::AddPointIn(Point *addpointin)
+Net::~Net()
 {
-	pin = addpointin;
+	pout.clear();
+	bout.clear();
 }
 
-void Net::AddPointOut(Point *addpointout)
+void Net::AddPointIn(Point *addpointin, void* boxin)
+{
+	pin = addpointin;
+	bin = boxin;
+}
+
+void Net::AddPointOut(Point *addpointout, void *boxout)
 {
 	pout.append(addpointout);
+	bout.append(boxout);
 }
 
 Point *Net::GetPointBoxIn()

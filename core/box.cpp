@@ -2,6 +2,7 @@
 
 Box::Box(Box::TypeEnum t, QString nm)
 {
+	idbox = -1;
 	type = t;
 	namebox = nm;
 	if(t != Box::BoxSource)
@@ -13,6 +14,7 @@ Box::Box(Box::TypeEnum t, QString nm)
 		ready = true;
 	}
 	boxtree = this;
+	readytree = false;
 }
 
 void Box::AddPoint(Point *addpoint)
