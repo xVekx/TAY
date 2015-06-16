@@ -1,5 +1,5 @@
 #include "box.h"
-
+//---------------------------------------------------------------------------------------------------
 Box::Box(Box::TypeEnum t, QString nm)
 {
 	idbox = -1;
@@ -16,63 +16,60 @@ Box::Box(Box::TypeEnum t, QString nm)
 	boxtree = this;
 	readytree = false;
 }
-
+//---------------------------------------------------------------------------------------------------
 Box::~Box()
 {
 	Clean();
 }
-
+//---------------------------------------------------------------------------------------------------
 void Box::Clean()
 {
-	qDebug()<<GetName();
-
 	foreach (Net *n, net) {
 		delete n;
 	}
 	net.clear();
-
 	foreach (Point *p, point) {
 		delete p;
 	}
 	point.clear();
 	box.clear();
 }
-
+//---------------------------------------------------------------------------------------------------
 void Box::AddPoint(Point *addpoint)
 {
 	point.append(addpoint);
 }
-
+//---------------------------------------------------------------------------------------------------
 void Box::AddBox(Box *addbox)
 {
 	box.append(addbox);
 }
-
+//---------------------------------------------------------------------------------------------------
 void Box::AddNet(Net *addnet)
 {
 	net.append(addnet);
 }
-
+//---------------------------------------------------------------------------------------------------
 QString Box::GetName() const
 {
 	return namebox;
 }
-
+//---------------------------------------------------------------------------------------------------
 Box::TypeEnum Box::GetType() const
 {
 	return type;
 }
-
+//---------------------------------------------------------------------------------------------------
 void Box::SetReady(bool r)
 {
 	ready = r;
 }
-
+//---------------------------------------------------------------------------------------------------
 bool Box::GetReady()
 {
 	return ready;
 }
-
+//---------------------------------------------------------------------------------------------------
 bool Box::GetReadyBoxListPoint(QList<Point *> lp)
 {
 	foreach (Point *p, lp) {
@@ -81,7 +78,7 @@ bool Box::GetReadyBoxListPoint(QList<Point *> lp)
 	}
 	return true;
 }
-
+//---------------------------------------------------------------------------------------------------
 Box *Box::GetBox(QString nb)
 {
 	foreach (Box *b, box) {
@@ -92,7 +89,7 @@ Box *Box::GetBox(QString nb)
 	}
 	return NULL;
 }
-
+//---------------------------------------------------------------------------------------------------
 Point *Box::GetPoint(QString np)
 {
 	foreach (Point *p, point) {
@@ -102,7 +99,7 @@ Point *Box::GetPoint(QString np)
 	}
 	return NULL;
 }
-
+//---------------------------------------------------------------------------------------------------
 QList<Box *> Box::GetListBox(Box::TypeEnum t)
 {
 	if(t == BoxAll)
@@ -115,7 +112,7 @@ QList<Box *> Box::GetListBox(Box::TypeEnum t)
 	}
 	return lb;
 }
-
+//---------------------------------------------------------------------------------------------------
 QList<Point *> Box::GetListPoint(Point::TypeEnum t)
 {
 	if(t == Point::PointAll)
@@ -129,7 +126,7 @@ QList<Point *> Box::GetListPoint(Point::TypeEnum t)
 	}
 	return lp;
 }
-
+//---------------------------------------------------------------------------------------------------
 void Box::PrintListPoint(const QList<Point *> lp)
 {
 	qDebug()<<"List point size ="<<lp.size();
@@ -137,7 +134,7 @@ void Box::PrintListPoint(const QList<Point *> lp)
 		qDebug()<<p->PointInfo();
 	}
 }
-
+//---------------------------------------------------------------------------------------------------
 void Box::PrintListBox(QList<Box *> lb)
 {
 	foreach (Box *b, lb) {
@@ -146,7 +143,7 @@ void Box::PrintListBox(QList<Box *> lb)
 		PrintListPoint(b->GetListPoint(Point::PointAll));
 	}
 }
-
+//---------------------------------------------------------------------------------------------------
 bool Box::StepNet()
 {
 	int count = 0;
@@ -157,3 +154,4 @@ bool Box::StepNet()
 	qDebug()<<"StepNet"<<net.size()<<count<<(net.size() == count);
 	return net.size() == count;
 }
+//---------------------------------------------------------------------------------------------------

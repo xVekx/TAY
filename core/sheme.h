@@ -21,6 +21,7 @@ public:
 	QDomElement BoxDomElement(QDomDocument& domdoc,Box *box);
 	void SetIdAllSheme();
 	bool Save(QString FileName);
+	bool Load(QString FileName);
 
 	void AllListBox(QList<Box *> &lb);
 

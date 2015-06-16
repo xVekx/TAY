@@ -9,8 +9,6 @@ MW::MW(QWidget *parent) :
 
 	sheme = new Sheme();
 
-	for(int i=0;i<1;i++)
-	{
 
 	sheme->TestSheme003();
 	QList<Box*> listbox;
@@ -29,11 +27,13 @@ MW::MW(QWidget *parent) :
 		qDebug()<<"Box add"<<NameListBox;
 	}
 
-
-	sheme->Save("../003/001.xml");*/
+	*/
+	sheme->Save("../TAY/001.xml");
 
 	sheme->CleanAll();
-	}
+
+	qDebug()<<sheme->Load("../TAY/001.xml");
+
 }
 
 MW::~MW()

@@ -7,6 +7,7 @@ Sheme::Sheme() : Box(BoxSheme)
 
 void Sheme::TestSheme001()
 {
+	qDebug()<<"TestSheme001";
 	//Источники
 	Box *s1 = new Box(Box::BoxSource,"S1");
 	{
@@ -75,7 +76,6 @@ void Sheme::TestSheme001()
 	}
 	AddNet(ns3);
 
-
 	Net *nd1 = new Net();
 	{
 		nd1->AddPointIn(GetBox("B1")->GetPoint("B1Out1"));
@@ -97,6 +97,7 @@ void Sheme::TestSheme001()
 
 void Sheme::TestSheme002()
 {
+	qDebug()<<"TestSheme002";
 	//Источники
 	Box *s1 = new Box(Box::BoxSource,"S1");
 	{
@@ -164,8 +165,6 @@ void Sheme::TestSheme002()
 	}
 	AddNet(ns1);
 
-	qDebug()<<"Net S 2";
-
 	Net *ns2 = new Net();
 	{
 		ns2->AddPointIn(GetBox("S2")->GetPoint("S2Out1"));
@@ -193,7 +192,6 @@ void Sheme::TestSheme002()
 		ns5->AddPointOut(GetBox("B2")->GetPoint("B2In2"));
 	}
 	AddNet(ns5);
-
 
 	Net *nd1 = new Net();
 	{
@@ -223,6 +221,7 @@ void Sheme::TestSheme002()
 
 void Sheme::TestSheme003()
 {
+	qDebug()<<"TestSheme003";
 	//Источники
 	Box *s1 = new Box(Box::BoxSource,"S1");
 	{
@@ -230,20 +229,17 @@ void Sheme::TestSheme003()
 		AddBox(s1);
 	}
 
-
 	Box *s2 = new Box(Box::BoxSource,"S2");
 	{
 		s2->AddPoint(new Point(Point::PointOUT,"S2Out1"));
 		AddBox(s2);
 	}
 
-
 	Box *s3 = new Box(Box::BoxSource,"S3");
 	{
 		s3->AddPoint(new Point(Point::PointOUT,"S3Out1"));
 		AddBox(s3);
 	}
-
 
 	//Бокс
 	Box *b1 = new Box(Box::BoxTestFun,"B1");
@@ -257,20 +253,17 @@ void Sheme::TestSheme003()
 		AddBox(b1);
 	}
 
-
 	Box *b2 = new Box(Box::BoxSheme,"B2");
 	{
 		b2->AddPoint(new Point(Point::PointIN,"B2In1"));
 		b2->AddPoint(new Point(Point::PointIN,"B2In2"));
 		b2->AddPoint(new Point(Point::PointOUT,"B2Out1"));
 
-
 		Box *b21 = new Box(Box::BoxTestFun, "B21");
 
 		{
 			b21->AddPoint(new Point(Point::PointIN,"B21In1"));
 			b21->AddPoint(new Point(Point::PointOUT,"B21Out1"));
-
 
 			Box *b211 = new Box(Box::BoxTestFun, "B211");
 			{
@@ -320,7 +313,6 @@ void Sheme::TestSheme003()
 			nd22->AddPointOut(GetBox("B2")->GetPoint("B2Out1"));
 		}
 		b2->AddNet(nd22);
-
 
 	}
 
@@ -465,7 +457,7 @@ QDomElement Sheme::BoxDomElement(QDomDocument &domdoc, Box *box)
 	}
 
 	foreach (Box *b, box->GetListBox()) {
-		QDomElement de = domdoc.createElement("box");
+		QDomElement de = domdoc.createElement("inbox");
 		SetAttrDomElement(domdoc,de,"id",QString("%1").arg(b->GetIdBox()));
 		bde.appendChild(de);
 	}
@@ -485,8 +477,6 @@ QDomElement Sheme::BoxDomElement(QDomDocument &domdoc, Box *box)
 			SetAttrDomElement(domdoc,deout,"point",npbout.GetPoint()->GetName());
 			de.appendChild(deout);
 		}
-
-
 		bde.appendChild(de);
 	}
 
@@ -497,10 +487,6 @@ void BoxInfo(Box* b)
 {
 	qDebug()<<"Box"<<b->GetName()<<b->GetReadyTree();
 }
-
-
-
-
 
 void Sheme::SetIdAllSheme()
 {
@@ -516,7 +502,7 @@ void Sheme::SetIdAllSheme()
 bool Sheme::Save(QString FileName)
 {
 	SetIdAllSheme();
-	QDomDocument sd("Sheme 0.0.0");
+	QDomDocument sd("Sheme");
 	QDomElement  de = sd.createElement("elements");
 	sd.appendChild(de);
 
@@ -535,9 +521,60 @@ bool Sheme::Save(QString FileName)
 		return false;
 	}
 	QTextStream(&file) << sd.toString();
-	qDebug()<<sd.toString();
+	//qDebug()<<sd.toString();
 	file.close();
 	return true;
+}
+
+bool Sheme::Load(QString FileName)
+{
+	CleanAll();
+
+	QDomDocument ld;
+	QFile file(FileName);
+
+
+	if(file.open(QIODevice::ReadOnly))
+	{
+		QString Error;
+		bool nsp=false;
+		int errorLine;
+		int errorColumn;
+		if(ld.setContent(&file,nsp,&Error,&errorLine,&errorColumn))
+		{
+			/*QDomElement de = ld.documentElement().firstChild().toElement();
+			qDebug()<<de.tagName();*/
+			QDomNodeList dnl = ld.documentElement().elementsByTagName("box");
+			qDebug()<<dnl.size();
+
+
+			QDomNodeList t1 = dnl.at(11).toElement().elementsByTagName("inbox");
+			qDebug()<<t1.size();
+
+			for(int i=0;i<t1.size();i++)
+			{
+				qDebug()<<t1.at(i).toElement().tagName();
+				qDebug()<<t1.at(i).toElement().attribute("id").toInt();
+			}
+			/*foreach (QDomNode dn, dnl)
+			{
+				qDebug()<<dn.toElement().tagName();
+			}*/
+
+
+			//traverseNode(domElement);
+		}
+		else
+		{
+			qDebug()<<"!ld.setContent(&file)";
+			//qDebug()<<file.readAll();
+			qDebug()<<Error<<errorLine<<errorColumn;
+		}
+		file.close();
+	}
+	 else return false;
+
+	 return true;
 }
 
 void Sheme::AllListBox(QList<Box *> &lb)
