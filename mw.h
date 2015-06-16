@@ -18,6 +18,9 @@ public:
 	~MW();
 	Sheme *sheme;
 
+private slots:
+	void on_TestSave_clicked();
+
 private:
 	Ui::MW *ui;
 };

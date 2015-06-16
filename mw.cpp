@@ -34,40 +34,18 @@ MW::MW(QWidget *parent) :
 
 	sheme->CleanAll();
 	}
-
-
-	//sheme->SetIdAllSheme();
-	//sheme->Save("../003/001.xml");
-	//sheme->Step();
-
-	/*QDomDocument doc("addressbook");
-	QDomElement  domElement = doc.createElement("adressbook");
-	doc.appendChild(domElement);*/
-
-	/*QDomElement contact1 =
-		contact(doc, "Piggy", "+49 631322187", "piggy@mega.de");
-
-	QDomElement contact2 =
-		contact(doc, "Kermit", "+49 631322181", "kermit@mega.de");
-
-	QDomElement contact3 =
-		contact(doc, "Gonzo", "+49 631322186", "gonzo@mega.de");
-
-	domElement.appendChild(contact1);
-	domElement.appendChild(contact2);
-	domElement.appendChild(contact3);*/
-
-	/*QFile file("adressbook.xml");
-	if(file.open(QIODevice::WriteOnly)) {
-		QTextStream(&file) << doc.toString();
-		file.close();
-	}*/
-
-
-
 }
 
 MW::~MW()
 {
 	delete ui;
+}
+
+void MW::on_TestSave_clicked()
+{
+	sheme->CleanAll();
+	sheme->TestSheme003();
+	QList<Box*> listbox;
+	sheme->AllListBox(listbox);
+	sheme->SetIdAllSheme();
 }
