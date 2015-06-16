@@ -20,6 +20,9 @@ public:
 	};
 
 	Box(TypeEnum t = BoxNULL,QString nm = "NULL");
+	~Box();
+
+	void Clean();
 
 	void AddPoint(Point* addpoint);
 	void AddBox(Box *addbox);

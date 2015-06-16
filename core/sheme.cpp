@@ -499,7 +499,48 @@ void BoxInfo(Box* b)
 }
 
 
-void Sheme::AllListBox(QList<Box*> &lb)
+
+
+
+void Sheme::SetIdAllSheme()
+{
+	QList<Box*> lb;
+	AllListBox(lb);
+	int n = 0;
+	foreach (Box* b, lb) {
+		b->SetIdBox(n);
+		n++;
+	}
+}
+
+bool Sheme::Save(QString FileName)
+{
+	SetIdAllSheme();
+	QDomDocument sd("Sheme 0.0.0");
+	QDomElement  de = sd.createElement("elements");
+	sd.appendChild(de);
+
+	QList<Box*> lb;
+	AllListBox(lb);
+	foreach (Box* b, lb)
+	{
+		QDomElement bde = BoxDomElement(sd,b);
+		de.appendChild(bde);
+	}
+
+	QFile file(FileName);
+	if(!file.open(QIODevice::WriteOnly))
+	{
+		qDebug()<<"Not open save file:"<<FileName;
+		return false;
+	}
+	QTextStream(&file) << sd.toString();
+	qDebug()<<sd.toString();
+	file.close();
+	return true;
+}
+
+void Sheme::AllListBox(QList<Box *> &lb)
 {
 	lb.clear();
 	QStack<Box*> stktree;
@@ -552,43 +593,20 @@ void Sheme::AllListBox(QList<Box*> &lb)
 	}
 }
 
-
-void Sheme::SetIdAllSheme()
+void Sheme::CleanAll()
 {
 	QList<Box*> lb;
 	AllListBox(lb);
-	int n = 0;
 	foreach (Box* b, lb) {
-		b->SetIdBox(n);
-		n++;
+		if(b != this)
+		{
+			delete b;
+		}
+		else
+		{
+			Clean();
+		}
 	}
-}
-
-bool Sheme::Save(QString FileName)
-{
-	SetIdAllSheme();
-	QDomDocument sd("Sheme 0.0.0");
-	QDomElement  de = sd.createElement("elements");
-	sd.appendChild(de);
-
-	QList<Box*> lb;
-	AllListBox(lb);
-	foreach (Box* b, lb)
-	{
-		QDomElement bde = BoxDomElement(sd,b);
-		de.appendChild(bde);
-	}
-
-	QFile file(FileName);
-	if(!file.open(QIODevice::WriteOnly))
-	{
-		qDebug()<<"Not open save file:"<<FileName;
-		return false;
-	}
-	QTextStream(&file) << sd.toString();
-	qDebug()<<sd.toString();
-	file.close();
-	return true;
 }
 
 bool Sheme::Step()
@@ -618,7 +636,7 @@ bool Sheme::Step()
 			qDebug()<<"POP";
 			stktree.top()->SetBoxTreeThis();
 			if(!stktree.empty())
-			qDebug()<<stktree.pop()->GetName();
+				qDebug()<<stktree.pop()->GetName();
 			qDebug()<<"POP E"<<"size"<<stktree.size();
 			qDebug()<<stktree.top()->GetName();
 			continue;

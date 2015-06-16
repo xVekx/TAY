@@ -8,6 +8,10 @@ MW::MW(QWidget *parent) :
 	ui->setupUi(this);
 
 	sheme = new Sheme();
+
+	for(int i=0;i<1;i++)
+	{
+
 	sheme->TestSheme003();
 	QList<Box*> listbox;
 	sheme->AllListBox(listbox);
@@ -23,9 +27,13 @@ MW::MW(QWidget *parent) :
 		}
 		if(!NameListBox.isEmpty())
 		qDebug()<<"Box add"<<NameListBox;
-	}*/
+	}
 
-	sheme->Save("../003/001.xml");
+
+	sheme->Save("../003/001.xml");*/
+
+	sheme->CleanAll();
+	}
 
 
 	//sheme->SetIdAllSheme();

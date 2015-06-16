@@ -21,7 +21,10 @@ public:
 	QDomElement BoxDomElement(QDomDocument& domdoc,Box *box);
 	void SetIdAllSheme();
 	bool Save(QString FileName);
+
 	void AllListBox(QList<Box *> &lb);
+
+	void CleanAll();
 };
 
 #endif // SHEME_H

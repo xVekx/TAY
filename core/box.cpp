@@ -17,6 +17,27 @@ Box::Box(Box::TypeEnum t, QString nm)
 	readytree = false;
 }
 
+Box::~Box()
+{
+	Clean();
+}
+
+void Box::Clean()
+{
+	qDebug()<<GetName();
+
+	foreach (Net *n, net) {
+		delete n;
+	}
+	net.clear();
+
+	foreach (Point *p, point) {
+		delete p;
+	}
+	point.clear();
+	box.clear();
+}
+
 void Box::AddPoint(Point *addpoint)
 {
 	point.append(addpoint);
