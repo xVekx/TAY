@@ -1,29 +1,29 @@
 #include "box.h"
 //---------------------------------------------------------------------------------------------------
-Box::Box(Box::TypeEnum t, QString nm)
+Box::Box(Box::TypeEnum t, QString nm, int id) {
+	Init(t,nm,id);
+}
+//---------------------------------------------------------------------------------------------------
+Box::~Box() {
+	Clean();
+}
+//---------------------------------------------------------------------------------------------------
+void Box::Init(Box::TypeEnum t, QString nm, int id)
 {
-	idbox = -1;
+	idbox = id;
 	type = t;
 	namebox = nm;
-	if(t != Box::BoxSource)
-	{
+	if(t != Box::BoxSource) {
 		ready = false;
 	}
-	else
-	{
+	else {
 		ready = true;
 	}
 	boxtree = this;
 	readytree = false;
 }
 //---------------------------------------------------------------------------------------------------
-Box::~Box()
-{
-	Clean();
-}
-//---------------------------------------------------------------------------------------------------
-void Box::Clean()
-{
+void Box::Clean() {
 	foreach (Net *n, net) {
 		delete n;
 	}
@@ -35,43 +35,35 @@ void Box::Clean()
 	box.clear();
 }
 //---------------------------------------------------------------------------------------------------
-void Box::AddPoint(Point *addpoint)
-{
+void Box::AddPoint(Point *addpoint) {
 	point.append(addpoint);
 }
 //---------------------------------------------------------------------------------------------------
-void Box::AddBox(Box *addbox)
-{
+void Box::AddBox(Box *addbox) {
 	box.append(addbox);
 }
 //---------------------------------------------------------------------------------------------------
-void Box::AddNet(Net *addnet)
-{
+void Box::AddNet(Net *addnet) {
 	net.append(addnet);
 }
 //---------------------------------------------------------------------------------------------------
-QString Box::GetName() const
-{
+QString Box::GetName() {
 	return namebox;
 }
 //---------------------------------------------------------------------------------------------------
-Box::TypeEnum Box::GetType() const
-{
+Box::TypeEnum Box::GetType() {
 	return type;
 }
 //---------------------------------------------------------------------------------------------------
-void Box::SetReady(bool r)
-{
+void Box::SetReady(bool r) {
 	ready = r;
 }
 //---------------------------------------------------------------------------------------------------
-bool Box::GetReady()
-{
+bool Box::GetReady() {
 	return ready;
 }
 //---------------------------------------------------------------------------------------------------
-bool Box::GetReadyBoxListPoint(QList<Point *> lp)
-{
+bool Box::GetReadyBoxListPoint(QList<Point *> lp) {
 	foreach (Point *p, lp) {
 		if(p->GetReady() != true)
 			return false;
@@ -79,19 +71,15 @@ bool Box::GetReadyBoxListPoint(QList<Point *> lp)
 	return true;
 }
 //---------------------------------------------------------------------------------------------------
-Box *Box::GetBox(QString nb)
-{
+Box *Box::GetBox(QString nb) {
 	foreach (Box *b, box) {
 		if(nb == b->GetName())
-		{
 			return b;
-		}
 	}
 	return NULL;
 }
 //---------------------------------------------------------------------------------------------------
-Point *Box::GetPoint(QString np)
-{
+Point *Box::GetPoint(QString np) {
 	foreach (Point *p, point) {
 		if(np == p->GetName()) {
 			return p;
@@ -100,8 +88,7 @@ Point *Box::GetPoint(QString np)
 	return NULL;
 }
 //---------------------------------------------------------------------------------------------------
-QList<Box *> Box::GetListBox(Box::TypeEnum t)
-{
+QList<Box *> Box::GetListBox(Box::TypeEnum t) {
 	if(t == BoxAll)
 		return box;
 	QList<Box*> lb;
@@ -113,30 +100,29 @@ QList<Box *> Box::GetListBox(Box::TypeEnum t)
 	return lb;
 }
 //---------------------------------------------------------------------------------------------------
-QList<Point *> Box::GetListPoint(Point::TypeEnum t)
-{
+QList<Point *> Box::GetListPoint(Point::TypeEnum t) {
 	if(t == Point::PointAll)
 		return point;
 	QList<Point*> lp;
 	foreach (Point *p, point) {
 		if(p->GetType() == t)
-		{
 			lp<<p;
-		}
 	}
 	return lp;
 }
 //---------------------------------------------------------------------------------------------------
-void Box::PrintListPoint(const QList<Point *> lp)
-{
+QList<Net *> Box::GetListNet() {
+	return net;
+}
+//---------------------------------------------------------------------------------------------------
+void Box::PrintListPoint(const QList<Point *> lp) {
 	qDebug()<<"List point size ="<<lp.size();
 	foreach (Point *p, lp) {
 		qDebug()<<p->PointInfo();
 	}
 }
 //---------------------------------------------------------------------------------------------------
-void Box::PrintListBox(QList<Box *> lb)
-{
+void Box::PrintListBox(QList<Box *> lb) {
 	foreach (Box *b, lb) {
 		qDebug()<<b->GetName();
 		QList<Point*> lp = b->GetListPoint(Point::PointAll);
@@ -144,8 +130,7 @@ void Box::PrintListBox(QList<Box *> lb)
 	}
 }
 //---------------------------------------------------------------------------------------------------
-bool Box::StepNet()
-{
+bool Box::StepNet() {
 	int count = 0;
 	foreach (Net* n, net) {
 		if(n->Step())
@@ -153,5 +138,135 @@ bool Box::StepNet()
 	}
 	qDebug()<<"StepNet"<<net.size()<<count<<(net.size() == count);
 	return net.size() == count;
+}
+//---------------------------------------------------------------------------------------------------
+bool Box::ReadyBox(Box::TypeEnum t) {
+	QList<Box*> lb = GetListBox(t);
+	foreach (Box* b, lb) {
+		if(!b->GetReady())
+			return false;
+	}
+	return true;
+}
+//---------------------------------------------------------------------------------------------------
+bool Box::StepBox(Box::TypeEnum t)
+{
+	QList<Box*>	lb = GetListBox(t);
+	foreach (Box *b, lb) {
+		if(!b->GetReady()) {
+			qDebug()<<"Box"<<b->GetName();
+			QList<Point*> lpin = b->GetListPoint(Point::PointIN);
+			if(!GetReadyBoxListPoint(lpin))
+			{
+				qDebug()<<"continue";
+				continue;
+			}
+
+			TypeEnum bt = b->GetType();
+
+			switch (bt) {
+
+				case BoxSumm: {
+					QList<Point*> lpout = b->GetListPoint(Point::PointOUT);
+
+					double summ = 0;
+					foreach (Point* pin, lpin) {
+						summ += pin->GetValue();
+					}
+
+					foreach (Point* pout, lpout) {
+						pout->SetValue(summ);
+					}
+
+					PrintListPoint(lpin);
+					PrintListPoint(lpout);
+
+					b->SetReady();
+					break;
+				}
+
+				case BoxTestFun: {
+
+					QList<Point*> lpout = b->GetListPoint(Point::PointOUT);
+
+					double summ = 0;
+					foreach (Point* pin, lpin) {
+						summ += pin->GetValue();
+					}
+
+					double z = 1.0f;
+					foreach (Point* pout, lpout) {
+						pout->SetValue(summ*z);
+						z = z + 1.0f;
+					}
+
+					PrintListPoint(lpin);
+					PrintListPoint(lpout);
+
+					b->SetReady();
+					break;
+				}
+
+				case BoxDrain: {
+					b->SetReady();
+					break;
+				}
+
+				case BoxSheme:
+				{
+					boxtree = b;
+					break;
+				}
+
+				default:
+					break;
+			}
+		}
+	}
+	return true;
+}
+//---------------------------------------------------------------------------------------------------
+void Box::SetBoxTreeThis() {
+	boxtree = this;
+}
+//---------------------------------------------------------------------------------------------------
+Box *Box::CurrentBoxTree()
+{
+	return boxtree;
+}
+//---------------------------------------------------------------------------------------------------
+void Box::SetIdBox(int id)
+{
+	idbox = id;
+}
+//---------------------------------------------------------------------------------------------------
+int Box::GetIdBox()
+{
+	return idbox;
+}
+//---------------------------------------------------------------------------------------------------
+int Box::GetListBoxSize()
+{
+	return box.size();
+}
+//---------------------------------------------------------------------------------------------------
+bool Box::StatusListBoxId()
+{
+	foreach (Box *b, box)
+	{
+		if(b->GetIdBox() == -1)
+			return false;
+	}
+	return true;
+}
+//---------------------------------------------------------------------------------------------------
+void Box::SetReadyTree(bool r)
+{
+	readytree = r;
+}
+//---------------------------------------------------------------------------------------------------
+bool Box::GetReadyTree()
+{
+	return readytree;
 }
 //---------------------------------------------------------------------------------------------------

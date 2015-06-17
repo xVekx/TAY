@@ -15,7 +15,7 @@ MW::MW(QWidget *parent) :
 	sheme->AllListBox(listbox);
 	sheme->SetIdAllSheme();
 	//---------------------------
-	/*qDebug()<<"---------";
+	qDebug()<<"---------";
 	foreach (Box *b, listbox)
 	{
 		qDebug()<<b->GetName()<<b->GetIdBox();
@@ -27,12 +27,26 @@ MW::MW(QWidget *parent) :
 		qDebug()<<"Box add"<<NameListBox;
 	}
 
-	*/
-	sheme->Save("../TAY/001.xml");
+	sheme->Save("../TAY/examples/001.xml");
 
 	sheme->CleanAll();
 
-	qDebug()<<sheme->Load("../TAY/001.xml");
+	qDebug()<<sheme->Load("../TAY/examples/001.xml");
+
+	sheme->Step();
+
+	/*qDebug()<<"---------";
+	sheme->AllListBox(listbox);
+	foreach (Box *b, listbox)
+	{
+		qDebug()<<b->GetName()<<b->GetIdBox();
+		QString NameListBox ;
+		foreach (Box *be, b->GetListBox()) {
+			NameListBox += be->GetName()+ " ";
+		}
+		if(!NameListBox.isEmpty())
+		qDebug()<<"Box add"<<NameListBox;
+	}*/
 
 }
 

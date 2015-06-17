@@ -253,7 +253,7 @@ void Sheme::TestSheme003()
 		AddBox(b1);
 	}
 
-	Box *b2 = new Box(Box::BoxSheme,"B2");
+	Box *b2 = new Box(Box::BoxTestFun,"B2");
 	{
 		b2->AddPoint(new Point(Point::PointIN,"B2In1"));
 		b2->AddPoint(new Point(Point::PointIN,"B2In2"));
@@ -453,6 +453,10 @@ QDomElement Sheme::BoxDomElement(QDomDocument &domdoc, Box *box)
 		QDomElement de = domdoc.createElement("point");
 		SetAttrDomElement(domdoc,de,"name",p->GetName());
 		SetAttrDomElement(domdoc,de,"type",QString("%1").arg(p->GetType()));
+		if(box->GetType() == BoxSource)
+		{
+			SetAttrDomElement(domdoc,de,"value",QString("%1").arg(p->GetValue()));
+		}
 		bde.appendChild(de);
 	}
 
@@ -526,6 +530,43 @@ bool Sheme::Save(QString FileName)
 	return true;
 }
 
+Box* Sheme::AddBoxDE(QDomElement de) {
+	Box *b;
+	QString namebox = de.attribute("name");
+	bool ok;
+	TypeEnum typebox = (TypeEnum)de.attribute("type").toInt(&ok);
+	if(!ok)
+		return NULL;
+	int idbox = de.attribute("id").toInt();
+	qDebug()<<namebox<<typebox<<idbox;
+
+	if(typebox != BoxSheme)
+		b = new Box(typebox,namebox,idbox);
+	else {
+		b = this;
+		b->Init(typebox,namebox,idbox);
+	}
+
+	QDomNodeList dnlp = de.elementsByTagName("point");
+
+	for(int i=0;i<dnlp.size();i++) {
+		QString namepoint = dnlp.at(i).toElement().attribute("name");
+		Point::TypeEnum typepoint = (Point::TypeEnum)dnlp.at(i).toElement().attribute("type").toInt(&ok);
+		if(!ok)
+			return NULL;
+		qDebug()<<" "<<namepoint<<typebox;
+		b->AddPoint(new Point(typepoint,namepoint));
+
+		QString valuepoint = dnlp.at(i).toElement().attribute("value");
+		if(!valuepoint.isEmpty())
+		{
+			qDebug()<<"SetValue"<<valuepoint.toDouble();
+			b->GetPoint(namepoint)->SetValue(valuepoint.toDouble());
+		}
+	}
+	return b;
+}
+
 bool Sheme::Load(QString FileName)
 {
 	CleanAll();
@@ -542,20 +583,98 @@ bool Sheme::Load(QString FileName)
 		int errorColumn;
 		if(ld.setContent(&file,nsp,&Error,&errorLine,&errorColumn))
 		{
-			/*QDomElement de = ld.documentElement().firstChild().toElement();
-			qDebug()<<de.tagName();*/
-			QDomNodeList dnl = ld.documentElement().elementsByTagName("box");
-			qDebug()<<dnl.size();
+			QDomNodeList dnlb = ld.documentElement().elementsByTagName("box");
+			qDebug()<<dnlb.size();
+
+			//Создаем обьекты Box
+			QHash <int , Box*> IdBoxHash;
+			for(int i=0;i<dnlb.size();i++)
+			{
+				Box *b = AddBoxDE(dnlb.at(i).toElement());
+				IdBoxHash.insert(b->GetIdBox(),b);
+			}
+
+			qDebug()<<IdBoxHash;
+			qDebug()<<(void*)this;
+
+			//Сылки Box обьектов эквиволентные файлу
+			for(int i=0;i<dnlb.size();i++)
+			{
+				int Id = dnlb.at(i).toElement().attribute("id").toInt();
+				qDebug()<<Id;
+				QDomNodeList dnlbin = dnlb.at(i).toElement().elementsByTagName("inbox");
+				Box *b = IdBoxHash.value(Id);
+				for(int n = 0;n < dnlbin.size();n++)
+				{
+					int IdIn = dnlbin.at(n).toElement().attribute("id").toInt();
+					qDebug()<<" "<<IdIn;
+					Box *bin = IdBoxHash.value(IdIn);
+					b->AddBox(bin);
+				}
+
+				QDomNodeList dnlnet = dnlb.at(i).toElement().elementsByTagName("net");
+				qDebug()<<"Net Count"<<dnlnet.size();
+
+				for(int n = 0; n < dnlnet.size() ; n++)
+				{
+					Net *net = new Net();
+					QDomElement dein = dnlnet.at(n).toElement().elementsByTagName("in").at(0).toElement();
+					qDebug()<<dein.attribute("box")<<dein.attribute("point");
+
+					QString namepoint = dein.attribute("point");
+					QString namebox = dein.attribute("box");
+
+					if(b->GetName() == namebox)
+						net->AddPointIn(b->GetPoint(namepoint),b);
+					else
+						net->AddPointIn(b->GetBox(namebox)->GetPoint(namepoint),b->GetBox(namebox));
 
 
-			QDomNodeList t1 = dnl.at(11).toElement().elementsByTagName("inbox");
+					QDomNodeList dnlout = dnlnet.at(n).toElement().elementsByTagName("out");
+					for(int no = 0; no < dnlout.size(); no++)
+					{
+						namepoint = dnlout.at(no).toElement().attribute("point");
+						namebox = dnlout.at(no).toElement().attribute("box");
+						qDebug()<<namebox<<namepoint;
+
+						if(b->GetName() == namebox)
+							net->AddPointOut(b->GetPoint(namepoint),b);
+						else
+							net->AddPointOut(b->GetBox(namebox)->GetPoint(namepoint),b->GetBox(namebox));
+					}
+
+					b->AddNet(net);
+
+
+				}
+
+
+
+			}
+
+
+			/*QDomNodeList t1 = dnl.at(11).toElement().elementsByTagName("inbox");
 			qDebug()<<t1.size();
 
+			QStringList list;
 			for(int i=0;i<t1.size();i++)
 			{
 				qDebug()<<t1.at(i).toElement().tagName();
 				qDebug()<<t1.at(i).toElement().attribute("id").toInt();
+				list.append(t1.at(i).toElement().attribute("id"));
 			}
+
+			qDebug()<<list;
+			foreach (QString strid, list) {
+
+				int id = strid.toInt();
+				QDomElement e = dnl.at(id).toElement();
+				Box *b;
+				AddBoxDE(b,e);
+
+			}*/
+
+
 			/*foreach (QDomNode dn, dnl)
 			{
 				qDebug()<<dn.toElement().tagName();

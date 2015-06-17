@@ -26,6 +26,7 @@ public:
 	void AllListBox(QList<Box *> &lb);
 
 	void CleanAll();
+	Box *AddBoxDE(QDomElement de);
 };
 
 #endif // SHEME_H
