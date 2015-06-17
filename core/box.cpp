@@ -116,7 +116,7 @@ QList<Net *> Box::GetListNet() {
 }
 //---------------------------------------------------------------------------------------------------
 void Box::PrintListPoint(const QList<Point *> lp) {
-	qDebug()<<"List point size ="<<lp.size();
+	//qDebug()<<"List point size ="<<lp.size();
 	foreach (Point *p, lp) {
 		qDebug()<<p->PointInfo();
 	}
@@ -140,6 +140,14 @@ bool Box::StepNet() {
 	return net.size() == count;
 }
 //---------------------------------------------------------------------------------------------------
+void Box::StepNet2()
+{
+	foreach (Net *n, net) {
+		n->Step2();
+	}
+}
+
+//---------------------------------------------------------------------------------------------------
 bool Box::ReadyBox(Box::TypeEnum t) {
 	QList<Box*> lb = GetListBox(t);
 	foreach (Box* b, lb) {
@@ -147,6 +155,74 @@ bool Box::ReadyBox(Box::TypeEnum t) {
 			return false;
 	}
 	return true;
+}
+//---------------------------------------------------------------------------------------------------
+double k = 2.1;
+
+void Box::BoxFunStep(Box *b,TypeEnum bt,QList<Point*> lpin,QList<Point*> lpout)
+{
+	switch (bt) {
+		case BoxSumm: {
+			double summ = 0;
+			foreach (Point* pin, lpin) {
+				summ += pin->GetValue();
+			}
+			foreach (Point* pout, lpout) {
+				pout->SetValue(summ);
+			}
+			b->SetReady();
+			break;
+		}
+		case BoxInverted: {
+			double summ = 0;
+			foreach (Point* pin, lpin) {
+				summ += pin->GetValue();
+			}
+			summ = -summ;
+			foreach (Point* pout, lpout) {
+				pout->SetValue(summ);
+			}
+			b->SetReady();
+			break;
+		}
+		case BoxFun1: {
+			double res = lpin.at(0)->GetValue() * 1;
+			lpout.at(0)->SetValue(res);
+			b->SetReady();
+			break;
+		}
+		case BoxFun2: {
+			double res =  -lpin.at(0)->GetValue() * 0.9;
+			lpout.at(0)->SetValue(res);
+			b->SetReady();
+			break;
+		}
+		case BoxTestFun: {
+			double summ = 0;
+			foreach (Point* pin, lpin) {
+				summ += pin->GetValue();
+			}
+
+			double z = 1.0f;
+			foreach (Point* pout, lpout) {
+				pout->SetValue(summ*z);
+				z = z + 1.0f;
+			}
+			b->SetReady();
+			break;
+		}
+		case BoxDrain: {
+			b->SetReady();
+			break;
+		}
+		case BoxSheme: {
+			boxtree = b;
+			break;
+		}
+		default:
+			break;
+	}
+
 }
 //---------------------------------------------------------------------------------------------------
 bool Box::StepBox(Box::TypeEnum t)
@@ -158,143 +234,32 @@ bool Box::StepBox(Box::TypeEnum t)
 			QList<Point*> lpin = b->GetListPoint(Point::PointIN);
 			if(!GetReadyBoxListPoint(lpin))
 			{
-				qDebug()<<lpin;
 				qDebug()<<"continue";
+
 				continue;
 			}
 
 			TypeEnum bt = b->GetType();
+			QList<Point*> lpout;
+			lpout += b->GetListPoint(Point::PointOUT);
 
-			switch (bt) {
+			BoxFunStep(b,bt,lpin,lpout);
 
-				case BoxSumm: {
-					QList<Point*> lpout = b->GetListPoint(Point::PointOUT);
-
-					double summ = 0;
-					foreach (Point* pin, lpin) {
-						summ += pin->GetValue();
-					}
-
-					foreach (Point* pout, lpout) {
-						pout->SetValue(summ);
-					}
-
-					PrintListPoint(lpin);
-					PrintListPoint(lpout);
-
-					b->SetReady();
-					break;
-				}
-
-				case BoxInverted: {
-					QList<Point*> lpout = b->GetListPoint(Point::PointOUT);
-
-					double summ = 0;
-					foreach (Point* pin, lpin) {
-						summ += pin->GetValue();
-					}
-
-					summ -= summ;
-
-					foreach (Point* pout, lpout) {
-						pout->SetValue(summ);
-					}
-
-					PrintListPoint(lpin);
-					PrintListPoint(lpout);
-
-					b->SetReady();
-					break;
-				}
-
-				case BoxFun1: {
-					QList<Point*> lpout = b->GetListPoint(Point::PointOUT);
-
-					/*double summ = 0;
-					foreach (Point* pin, lpin) {
-						summ += pin->GetValue();
-					}
-
-					summ -= summ;
-
-					foreach (Point* pout, lpout) {
-						pout->SetValue(summ);
-					}*/
-
-					double res = 1000 * 1000 * lpin.at(0)->GetValue();
-					lpout.at(0)->SetValue(res);
-
-					PrintListPoint(lpin);
-					PrintListPoint(lpout);
-
-					b->SetReady();
-					break;
-				}
-
-				case BoxFun2: {
-					QList<Point*> lpout = b->GetListPoint(Point::PointOUT);
-
-					/*double summ = 0;
-					foreach (Point* pin, lpin) {
-						summ += pin->GetValue();
-					}
-
-					summ -= summ;
-
-					foreach (Point* pout, lpout) {
-						pout->SetValue(summ);
-					}*/
-
-					double res = 0.0001 * lpin.at(0)->GetValue();
-					lpout.at(0)->SetValue(res);
-
-					PrintListPoint(lpin);
-					PrintListPoint(lpout);
-
-					b->SetReady();
-					break;
-				}
-
-
-				case BoxTestFun: {
-
-					QList<Point*> lpout = b->GetListPoint(Point::PointOUT);
-
-					double summ = 0;
-					foreach (Point* pin, lpin) {
-						summ += pin->GetValue();
-					}
-
-					double z = 1.0f;
-					foreach (Point* pout, lpout) {
-						pout->SetValue(summ*z);
-						z = z + 1.0f;
-					}
-
-					PrintListPoint(lpin);
-					PrintListPoint(lpout);
-
-					b->SetReady();
-					break;
-				}
-
-				case BoxDrain: {
-					b->SetReady();
-					break;
-				}
-
-				case BoxSheme:
-				{
-					boxtree = b;
-					break;
-				}
-
-				default:
-					break;
-			}
+			PrintListPoint(lpin);
+			PrintListPoint(lpout);
 		}
 	}
 	return true;
+}
+//---------------------------------------------------------------------------------------------------
+bool Box::StepBox2()
+{
+	QList<Point*> lpin = GetListPoint(Point::PointIN);
+	QList<Point*> lpout = GetListPoint(Point::PointOUT);
+	TypeEnum bt = GetType();
+	BoxFunStep(this,bt,lpin,lpout);
+	//PrintListPoint(lpin);
+	//PrintListPoint(lpout);
 }
 //---------------------------------------------------------------------------------------------------
 void Box::SetBoxTreeThis() {

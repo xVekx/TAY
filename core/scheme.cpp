@@ -1,10 +1,10 @@
 #include "scheme.h"
-
+//---------------------------------------------------------------------------------------------------
 Scheme::Scheme() : Box(BoxSheme)
 {
 	//type = BoxSheme;
 }
-
+//---------------------------------------------------------------------------------------------------
 void Scheme::SetAttrDomElement(QDomDocument &dd, QDomElement &de, QString attr, QString str)
 {
 	if(!str.isEmpty())
@@ -14,7 +14,7 @@ void Scheme::SetAttrDomElement(QDomDocument &dd, QDomElement &de, QString attr, 
 		de.setAttributeNode(domAttr);
 	}
 }
-
+//---------------------------------------------------------------------------------------------------
 QString Scheme::GetNameBox(Box *box, NetPointBox npb)
 {
 	if(npb.GetBox() != NULL) {
@@ -45,7 +45,7 @@ QString Scheme::GetNameBox(Box *box, NetPointBox npb)
 	}
 	return QString();
 }
-
+//---------------------------------------------------------------------------------------------------
 QDomElement Scheme::BoxDomElement(QDomDocument &domdoc, Box *box)
 {
 	QDomElement bde = domdoc.createElement("box");
@@ -90,12 +90,12 @@ QDomElement Scheme::BoxDomElement(QDomDocument &domdoc, Box *box)
 
 	return bde;
 }
-
+//---------------------------------------------------------------------------------------------------
 void BoxInfo(Box* b)
 {
 	qDebug()<<"Box"<<b->GetName()<<b->GetReadyTree();
 }
-
+//---------------------------------------------------------------------------------------------------
 void Scheme::SetIdAllSheme()
 {
 	QList<Box*> lb;
@@ -106,7 +106,7 @@ void Scheme::SetIdAllSheme()
 		n++;
 	}
 }
-
+//---------------------------------------------------------------------------------------------------
 bool Scheme::Save(QString FileName)
 {
 	SetIdAllSheme();
@@ -133,7 +133,7 @@ bool Scheme::Save(QString FileName)
 	file.close();
 	return true;
 }
-
+//---------------------------------------------------------------------------------------------------
 Box* Scheme::AddBoxDE(QDomElement de) {
 	Box *b;
 	QString namebox = de.attribute("name");
@@ -170,7 +170,7 @@ Box* Scheme::AddBoxDE(QDomElement de) {
 	}
 	return b;
 }
-
+//---------------------------------------------------------------------------------------------------
 bool Scheme::Load(QString FileName)
 {
 	CleanAll();
@@ -233,7 +233,6 @@ bool Scheme::Load(QString FileName)
 					else
 						net->AddPointIn(b->GetBox(namebox)->GetPoint(namepoint),b->GetBox(namebox));
 
-
 					QDomNodeList dnlout = dnlnet.at(n).toElement().elementsByTagName("out");
 					for(int no = 0; no < dnlout.size(); no++)
 					{
@@ -246,46 +245,9 @@ bool Scheme::Load(QString FileName)
 						else
 							net->AddPointOut(b->GetBox(namebox)->GetPoint(namepoint),b->GetBox(namebox));
 					}
-
 					b->AddNet(net);
-
-
 				}
-
-
-
 			}
-
-
-			/*QDomNodeList t1 = dnl.at(11).toElement().elementsByTagName("inbox");
-			qDebug()<<t1.size();
-
-			QStringList list;
-			for(int i=0;i<t1.size();i++)
-			{
-				qDebug()<<t1.at(i).toElement().tagName();
-				qDebug()<<t1.at(i).toElement().attribute("id").toInt();
-				list.append(t1.at(i).toElement().attribute("id"));
-			}
-
-			qDebug()<<list;
-			foreach (QString strid, list) {
-
-				int id = strid.toInt();
-				QDomElement e = dnl.at(id).toElement();
-				Box *b;
-				AddBoxDE(b,e);
-
-			}*/
-
-
-			/*foreach (QDomNode dn, dnl)
-			{
-				qDebug()<<dn.toElement().tagName();
-			}*/
-
-
-			//traverseNode(domElement);
 		}
 		else
 		{
@@ -299,7 +261,7 @@ bool Scheme::Load(QString FileName)
 
 	 return true;
 }
-
+//---------------------------------------------------------------------------------------------------
 void Scheme::AllListBox(QList<Box *> &lb)
 {
 	lb.clear();
@@ -352,7 +314,7 @@ void Scheme::AllListBox(QList<Box *> &lb)
 		b->SetReadyTree(false);
 	}
 }
-
+//---------------------------------------------------------------------------------------------------
 void Scheme::CleanAll()
 {
 	QList<Box*> lb;
@@ -368,7 +330,7 @@ void Scheme::CleanAll()
 		}
 	}
 }
-
+//---------------------------------------------------------------------------------------------------
 bool Scheme::Step()
 {
 	qDebug()<<"Step";
@@ -410,4 +372,27 @@ bool Scheme::Step()
 	PrintListBox(GetListBox(Box::BoxDrain));
 	return false;
 }
+//---------------------------------------------------------------------------------------------------
+void Scheme::Step2()
+{
+	qDebug()<<"----------------";
+	QList<Box *> listbox;
+	AllListBox(listbox);
+	foreach (Box *b, listbox) {
+		b->StepNet2();
+		b->StepBox2();
+	}
 
+	QList<Box *> pl;
+	/*pl<<GetBox("F1");
+	pl<<GetBox("F2");
+	pl<<GetBox("F4");*/
+	pl<<GetBox("D1");
+	PrintListBox(pl);
+
+	//PrintListBox(GetListBox(Box::BoxInverted));
+	//PrintListBox(GetListBox(Box::BoxDrain));
+
+
+}
+//---------------------------------------------------------------------------------------------------

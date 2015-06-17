@@ -1,6 +1,6 @@
 #include "mw.h"
 #include "ui_mw.h"
-
+//---------------------------------------------------------------------------------------------------
 MW::MW(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MW)
@@ -54,17 +54,17 @@ MW::MW(QWidget *parent) :
 
 	scheme->TestSheme004(scheme);
 
-	//for(int i=0;i<2;i++)
-	scheme->Step();
+	for(int i=0;i<4000;i++)
+	scheme->Step2();
 	//scheme->Save("../TAY/examples/001.xml");
 
 }
-
+//---------------------------------------------------------------------------------------------------
 MW::~MW()
 {
 	delete ui;
 }
-
+//---------------------------------------------------------------------------------------------------
 void MW::on_TestSave_clicked()
 {
 	scheme->CleanAll();
@@ -73,3 +73,4 @@ void MW::on_TestSave_clicked()
 	scheme->AllListBox(listbox);
 	scheme->SetIdAllSheme();
 }
+//---------------------------------------------------------------------------------------------------

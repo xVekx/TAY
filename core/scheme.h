@@ -1,11 +1,11 @@
 #ifndef SCHEME_H
 #define SCHEME_H
-
+//---------------------------------------------------------------------------------------------------
 #include "box.h"
 
 #include <QStack>
 #include <QtXml>
-
+//---------------------------------------------------------------------------------------------------
 class Scheme : public Box
 {
 public:
@@ -25,6 +25,7 @@ public:
 	void CleanAll();
 	Box *AddBoxDE(QDomElement de);
 	void TestSheme004(Box *b);
+	void Step2();
 };
-
+//---------------------------------------------------------------------------------------------------
 #endif // SHEME_H

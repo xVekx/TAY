@@ -1,8 +1,8 @@
 #ifndef BOX_H
 #define BOX_H
-
+//---------------------------------------------------------------------------------------------------
 #include "net.h"
-
+//---------------------------------------------------------------------------------------------------
 class Box
 {
 public:
@@ -72,7 +72,21 @@ public:
 
 	bool GetReadyTree();
 
+	double MatOCK2(double k,double k1)
+	{
+		return -(k1/k-1)/k1;
+	}
 
+	double MatOCK(double k1,double k2)
+	{
+		return (k1)/(1-k1*k2);
+	}
+
+
+	void BoxFunStep(TypeEnum bt, QList<Point *> lpin, QList<Point *> lpout);
+	void BoxFunStep(Box *b, TypeEnum bt, QList<Point *> lpin, QList<Point *> lpout);
+	bool StepBox2();
+	void StepNet2();
 private:
 
 	QList<Point*>	point;
@@ -86,5 +100,5 @@ private:
 	bool			readytree;
 
 };
-
+//---------------------------------------------------------------------------------------------------
 #endif // BOX_H

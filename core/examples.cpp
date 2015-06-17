@@ -468,7 +468,7 @@ void Examples::TestSheme004(Box *b)
 	}
 	b->AddNet(n5);
 
-	b->GetBox("S1")->GetPoint("S1Out1")->SetValue(0.001);
+	b->GetBox("S1")->GetPoint("S1Out1")->SetValue(0.01);
 }
 //---------------------------------------------------------------------------------------------------
 
