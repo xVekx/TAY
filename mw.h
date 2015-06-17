@@ -2,7 +2,7 @@
 #define MW_H
 
 #include <QMainWindow>
-#include "core/sheme.h"
+#include "core/examples.h"
 #include <QtXml>
 
 namespace Ui {
@@ -16,7 +16,7 @@ class MW : public QMainWindow
 public:
 	explicit MW(QWidget *parent = 0);
 	~MW();
-	Sheme *sheme;
+	Examples *scheme;
 
 private slots:
 	void on_TestSave_clicked();

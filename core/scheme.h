@@ -1,20 +1,17 @@
-#ifndef SHEME_H
-#define SHEME_H
+#ifndef SCHEME_H
+#define SCHEME_H
 
 #include "box.h"
 
 #include <QStack>
 #include <QtXml>
 
-class Sheme : public Box
+class Scheme : public Box
 {
 public:
-	Sheme();
+	Scheme();
 
 	bool Step();
-	void TestSheme001();
-	void TestSheme002();
-	void TestSheme003();
 
 	void SetAttrDomElement(QDomDocument& dd,QDomElement& de,QString attr,QString str);
 	QString GetNameBox(Box *box, NetPointBox npb);
@@ -27,6 +24,7 @@ public:
 
 	void CleanAll();
 	Box *AddBoxDE(QDomElement de);
+	void TestSheme004(Box *b);
 };
 
 #endif // SHEME_H

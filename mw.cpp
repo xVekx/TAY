@@ -7,13 +7,17 @@ MW::MW(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	sheme = new Sheme();
+	scheme = new Examples();
 
 
-	sheme->TestSheme003();
+	/*scheme->TestSheme003(scheme);
+
 	QList<Box*> listbox;
-	sheme->AllListBox(listbox);
-	sheme->SetIdAllSheme();
+
+	scheme->AllListBox(listbox);
+
+	scheme->SetIdAllSheme();
+
 	//---------------------------
 	qDebug()<<"---------";
 	foreach (Box *b, listbox)
@@ -27,13 +31,13 @@ MW::MW(QWidget *parent) :
 		qDebug()<<"Box add"<<NameListBox;
 	}
 
-	sheme->Save("../TAY/examples/001.xml");
+	scheme->Save("../TAY/examples/001.xml");
 
-	sheme->CleanAll();
+	scheme->CleanAll();
 
-	qDebug()<<sheme->Load("../TAY/examples/001.xml");
+	qDebug()<<scheme->Load("../TAY/examples/001.xml");
 
-	sheme->Step();
+	scheme->Step();*/
 
 	/*qDebug()<<"---------";
 	sheme->AllListBox(listbox);
@@ -48,6 +52,12 @@ MW::MW(QWidget *parent) :
 		qDebug()<<"Box add"<<NameListBox;
 	}*/
 
+	scheme->TestSheme004(scheme);
+
+	//for(int i=0;i<2;i++)
+	scheme->Step();
+	//scheme->Save("../TAY/examples/001.xml");
+
 }
 
 MW::~MW()
@@ -57,9 +67,9 @@ MW::~MW()
 
 void MW::on_TestSave_clicked()
 {
-	sheme->CleanAll();
-	sheme->TestSheme003();
+	scheme->CleanAll();
+	scheme->TestSheme003(scheme);
 	QList<Box*> listbox;
-	sheme->AllListBox(listbox);
-	sheme->SetIdAllSheme();
+	scheme->AllListBox(listbox);
+	scheme->SetIdAllSheme();
 }

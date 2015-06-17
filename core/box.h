@@ -16,7 +16,10 @@ public:
 		BoxDrain,		//Блок приёмника готового сигнала, толко входы
 		BoxFUN,			//Блок Вычисления функции
 		BoxSumm,		//Функция суммирования
-		BoxTestFun		//Функция тестирования
+		BoxTestFun,		//Функция тестирования
+		BoxInverted,
+		BoxFun1,
+		BoxFun2
 	};
 
 	Box(TypeEnum t = BoxNULL,QString nm = "NULL",int id = -1);

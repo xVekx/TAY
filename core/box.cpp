@@ -158,6 +158,7 @@ bool Box::StepBox(Box::TypeEnum t)
 			QList<Point*> lpin = b->GetListPoint(Point::PointIN);
 			if(!GetReadyBoxListPoint(lpin))
 			{
+				qDebug()<<lpin;
 				qDebug()<<"continue";
 				continue;
 			}
@@ -184,6 +185,76 @@ bool Box::StepBox(Box::TypeEnum t)
 					b->SetReady();
 					break;
 				}
+
+				case BoxInverted: {
+					QList<Point*> lpout = b->GetListPoint(Point::PointOUT);
+
+					double summ = 0;
+					foreach (Point* pin, lpin) {
+						summ += pin->GetValue();
+					}
+
+					summ -= summ;
+
+					foreach (Point* pout, lpout) {
+						pout->SetValue(summ);
+					}
+
+					PrintListPoint(lpin);
+					PrintListPoint(lpout);
+
+					b->SetReady();
+					break;
+				}
+
+				case BoxFun1: {
+					QList<Point*> lpout = b->GetListPoint(Point::PointOUT);
+
+					/*double summ = 0;
+					foreach (Point* pin, lpin) {
+						summ += pin->GetValue();
+					}
+
+					summ -= summ;
+
+					foreach (Point* pout, lpout) {
+						pout->SetValue(summ);
+					}*/
+
+					double res = 1000 * 1000 * lpin.at(0)->GetValue();
+					lpout.at(0)->SetValue(res);
+
+					PrintListPoint(lpin);
+					PrintListPoint(lpout);
+
+					b->SetReady();
+					break;
+				}
+
+				case BoxFun2: {
+					QList<Point*> lpout = b->GetListPoint(Point::PointOUT);
+
+					/*double summ = 0;
+					foreach (Point* pin, lpin) {
+						summ += pin->GetValue();
+					}
+
+					summ -= summ;
+
+					foreach (Point* pout, lpout) {
+						pout->SetValue(summ);
+					}*/
+
+					double res = 0.0001 * lpin.at(0)->GetValue();
+					lpout.at(0)->SetValue(res);
+
+					PrintListPoint(lpin);
+					PrintListPoint(lpout);
+
+					b->SetReady();
+					break;
+				}
+
 
 				case BoxTestFun: {
 
